@@ -1,0 +1,10 @@
+{
+  "name": "@omastore/react-typesafe-translations",
+  "version": "1.0.0",
+  "exports": {
+    ".": "./mod.ts"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  }
+}
