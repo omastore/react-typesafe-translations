@@ -61,7 +61,7 @@ export const createTranslationsFactory = <Lang extends string, BaseLang extends 
   const useTranslations = <T extends Translations>(translations: T) => {
     const language = useLanguage();
 
-    const t = useMemo(() => {
+    const t: ResolvedTranslations<T> = useMemo(() => {
       const resolved = Object.fromEntries(
         Object.entries(translations).map(([key, translationEntry]) => {
           const baseTranslation = translationEntry[baseLanguage];

@@ -14,6 +14,9 @@ A fully type-safe internationalization library for React applications with zero 
 - **Function-based Interpolation** — Type-safe translation functions
 - **Configurable Locale Rules** — Mark some languages as required, others as optional
 - **No ICU Black Magic** — Formatting and logic are handled in code, not strings
+- **No External Dependencies** — Pure TypeScript and React, no extra libraries
+- **Small Bundle Size** — Minimal impact on your app's size
+- **No missing translations** — Ensures all required languages have translations defined
 
 ---
 
@@ -213,6 +216,14 @@ react-typesafe-translations is ideal for:
 - Projects with 2–5 locales
 - Developer-maintained translations
 - High confidence in type safety and DX
+
+---
+
+### When Not to Use This
+
+- Apps with 10+ languages (maintenance overhead grows linearly)
+- Translator-facing tools (no JSON/XLIFF support)
+- Apps needing dynamic runtime translations (e.g., CMS-driven)
 
 ---
 

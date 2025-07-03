@@ -1,0 +1,46 @@
+{
+  "name": "react-typesafe-translations",
+  "version": "1.0.0",
+  "description": "Co-located, type-checked translations for React components.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target browser --format esm --external react && tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omastore/react-typesafe-translations.git"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "keywords": [
+    "react",
+    "i18n",
+    "translations",
+    "typescript",
+    "type-safe"
+  ],
+  "author": "Tatu Ulmanen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/omastore/react-typesafe-translations/issues"
+  },
+  "homepage": "https://github.com/omastore/react-typesafe-translations#readme",
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}
