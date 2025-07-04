@@ -42,10 +42,10 @@ const _extraLocale = {
   },
 } satisfies Translations;
 
-const _functionType = {
-  columnProduct: () => ({
-    fi: 'Tuote',
-    en: 'Product',
+const _functionTranslation = {
+  columnProduct: (name: string) => ({
+    fi: `Tuote ${name}`,
+    en: `Product ${name}`,
   }),
 } satisfies Translations;
 
