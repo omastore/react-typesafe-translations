@@ -12,12 +12,8 @@ export const createTranslationsFactory = <Lang extends string, BaseLang extends 
 
   type Translations = Record<string, Translation>;
 
-  type ResolvedTranslations<T> = {
-    [P in keyof T]: T[P] extends { [K in BaseLang]: infer BaseValue }
-      ? BaseValue extends (...args: unknown[]) => string
-        ? BaseValue
-        : string
-      : never;
+  type ResolvedTranslations<T, Lang extends string = never> = {
+    [P in keyof T]: T[P] extends (...args: infer Args) => Record<Lang, string> ? (...args: Args) => string : string;
   };
 
   let currentLang: Lang = baseLanguage;
