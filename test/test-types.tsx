@@ -11,6 +11,13 @@ const _valid = {
   },
 } satisfies Translations;
 
+const _validJsx = {
+  title: {
+    fi: <span>Otsikko</span>,
+    en: <span>Title</span>,
+  },
+} satisfies Translations;
+
 const _missingLocale = {
   // @ts-expect-error
   columnProduct: {
@@ -46,6 +53,21 @@ const _functionTranslation = {
   columnProduct: (name: string) => ({
     fi: `Tuote ${name}`,
     en: `Product ${name}`,
+  }),
+} satisfies Translations;
+
+const _functionJsxTranslation = {
+  columnProduct: (name: string) => ({
+    fi: (
+      <>
+        Tuote <span>{name}</span>
+      </>
+    ),
+    en: (
+      <>
+        Product <span>{name}</span>
+      </>
+    ),
   }),
 } satisfies Translations;
 
