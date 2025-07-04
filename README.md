@@ -61,14 +61,14 @@ export const translations = {
     fi: 'Tervetuloa!',
     en: 'Welcome!',
   },
-  greetUser: {
-    fi: (name: string) => `Hei, ${name}!`,
-    en: (name: string) => `Hello, ${name}!`,
-  },
-  itemCount: {
-    fi: (count: number) => `${count} ${count === 1 ? 'kohde' : 'kohdetta'}`,
-    en: (count: number) => `${count} ${count === 1 ? 'item' : 'items'}`,
-  },
+  greetUser: (name: string) => ({
+    fi: `Hei, ${name}!`,
+    en: `Hello, ${name}!`,
+  }),
+  itemCount: (count: number) => ({
+    fi: `${count} ${count === 1 ? 'kohde' : 'kohdetta'}`,
+    en: `${count} ${count === 1 ? 'item' : 'items'}`,
+  }),
 } satisfies Translations;
 ```
 
