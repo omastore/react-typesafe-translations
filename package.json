@@ -1,6 +1,6 @@
 {
   "name": "react-typesafe-translations",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Co-located, type-checked translations for React components.",
   "type": "module",
   "main": "./dist/index.js",
