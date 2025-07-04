@@ -1,8 +1,5 @@
 import { useMemo, useSyncExternalStore } from 'react';
 
-// biome-ignore lint/suspicious/noExplicitAny: We need to use any for the generic function arguments
-type FunctionType = (...args: any[]) => string;
-
 export const createTranslationsFactory = <Lang extends string, BaseLang extends Lang>(baseLanguage: BaseLang) => {
   type StringTranslation = {
     [L in BaseLang]: string;
@@ -10,13 +7,8 @@ export const createTranslationsFactory = <Lang extends string, BaseLang extends 
     [L in Exclude<Lang, BaseLang>]: string | undefined;
   };
 
-  type FunctionTranslation = {
-    [L in BaseLang]: FunctionType;
-  } & {
-    [L in Exclude<Lang, BaseLang>]: FunctionType | undefined;
-  };
-
-  type Translation = StringTranslation | FunctionTranslation;
+  // biome-ignore lint/suspicious/noExplicitAny: We need to use any for the generic function arguments
+  type Translation = StringTranslation | ((...args: any[]) => StringTranslation);
 
   type Translations = Record<string, Translation>;
 
@@ -27,31 +19,6 @@ export const createTranslationsFactory = <Lang extends string, BaseLang extends 
         : string
       : never;
   };
-
-  type OtherLangFunctions<T, BL extends string> = T extends { [K in BL]: infer _ }
-    ? { [K in Exclude<keyof T, BL>]: T[K] }
-    : never;
-
-  type BaseLangFunction<T, BL extends string> = T extends { [K in BL]: infer F } ? F : never;
-
-  type AllOtherLangsSameFn<T, BL extends string> = OtherLangFunctions<T, BL>[keyof OtherLangFunctions<
-    T,
-    BL
-  >] extends never
-    ? {}
-    : OtherLangFunctions<T, BL>[keyof OtherLangFunctions<T, BL>] extends BaseLangFunction<T, BL>
-      ? {}
-      : never;
-
-  type AssertAllSameFn<T, BL extends string = BaseLang> = {
-    [K in keyof T]: T[K] extends { [P in BL]: infer Base }
-      ? Base extends (...args: any[]) => any
-        ? AllOtherLangsSameFn<T[K], BL>
-        : {}
-      : {};
-  }[keyof T];
-
-  // --- End AssertAllSameFn ---
 
   let currentLang: Lang = baseLanguage;
   const listeners = new Set<() => void>();
@@ -88,23 +55,25 @@ export const createTranslationsFactory = <Lang extends string, BaseLang extends 
    * @param translations The translations object.
    * @returns An object with a `t` function to translate keys.
    */
-  const useTranslations = <T extends Translations & AssertAllSameFn<T, BaseLang>>(translations: T) => {
+  const useTranslations = <T extends Translations>(translations: T) => {
     const language = useLanguage();
 
     const t: ResolvedTranslations<T> = useMemo(() => {
       const resolved = Object.fromEntries(
         Object.entries(translations).map(([key, translationEntry]) => {
-          const baseTranslation = translationEntry[baseLanguage];
-          if (typeof baseTranslation === 'function') {
+          if (typeof translationEntry === 'function') {
             const translatedFunc = (...args: unknown[]) => {
-              // biome-ignore lint/complexity/noBannedTypes: We need to cast to Function to call it
-              const chosenFunc = (translationEntry[language] ?? baseTranslation) as Function;
-              return chosenFunc(...args);
+              const translation = translationEntry(...args) as Record<Lang, string | undefined>;
+              const baseTranslation = translation[baseLanguage];
+              const translatedString = (translation[language] ?? baseTranslation) as string;
+              return translatedString;
             };
             return [key, translatedFunc];
           }
 
-          const translatedString = (translationEntry[language] ?? baseTranslation) as string;
+          const baseTranslation = translationEntry[baseLanguage];
+          const translatedString = ((translationEntry as Record<Lang, string | undefined>)[language] ??
+            baseTranslation) as string;
           return [key, translatedString];
         }),
       );

@@ -42,22 +42,16 @@ const _extraLocale = {
   },
 } satisfies Translations;
 
-const _mismatchedTypes = {
-  // @ts-expect-error
-  columnProduct: {
+const _functionType = {
+  columnProduct: () => ({
     fi: 'Tuote',
-    en: () => 'Product',
-  },
+    en: 'Product',
+  }),
 } satisfies Translations;
 
 const _mismatchedProps = {
-  columnProduct: {
-    fi: (foo: number) => `${foo}`,
-    en: (foo: string) => `${foo}`,
-  },
+  columnProduct: (foo: number) => ({
+    fi: `${foo}`,
+    en: `${foo}`,
+  }),
 } satisfies Translations;
-
-() => {
-  // @ts-expect-error
-  i18n.useTranslations(_mismatchedProps);
-};
