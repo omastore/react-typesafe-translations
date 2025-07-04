@@ -1,0 +1,10 @@
+{
+  "javascript": {
+    "formatter": {
+      "lineWidth": 120,
+      "indentStyle": "space",
+      "quoteStyle": "single",
+      "arrowParentheses": "asNeeded"
+    }
+  }
+}

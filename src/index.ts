@@ -1,27 +1,57 @@
 import { useMemo, useSyncExternalStore } from 'react';
 
 // biome-ignore lint/suspicious/noExplicitAny: We need to use any for the generic function arguments
-type FunctionTranslation = (...args: any[]) => string;
+type FunctionType = (...args: any[]) => string;
 
 export const createTranslationsFactory = <Lang extends string, BaseLang extends Lang>(baseLanguage: BaseLang) => {
-  type Translation = Record<Lang, string | undefined> | Record<Lang, FunctionTranslation | undefined>;
+  type StringTranslation = {
+    [L in BaseLang]: string;
+  } & {
+    [L in Exclude<Lang, BaseLang>]: string | undefined;
+  };
+
+  type FunctionTranslation = {
+    [L in BaseLang]: FunctionType;
+  } & {
+    [L in Exclude<Lang, BaseLang>]: FunctionType | undefined;
+  };
+
+  type Translation = StringTranslation | FunctionTranslation;
 
   type Translations = Record<string, Translation>;
 
-  type Value = string | FunctionTranslation | undefined;
-
-  type RequireBaseLanguage<Langs extends string, Base extends Langs> = Record<
-    string,
-    { [K in Base]: Exclude<Value, undefined> } & { [K in Exclude<Langs, Base>]: Value }
-  >;
-
   type ResolvedTranslations<T> = {
-    [P in keyof T]: T[P] extends Record<BaseLang, infer BaseValue>
+    [P in keyof T]: T[P] extends { [K in BaseLang]: infer BaseValue }
       ? BaseValue extends (...args: unknown[]) => string
         ? BaseValue
         : string
       : never;
   };
+
+  type OtherLangFunctions<T, BL extends string> = T extends { [K in BL]: infer _ }
+    ? { [K in Exclude<keyof T, BL>]: T[K] }
+    : never;
+
+  type BaseLangFunction<T, BL extends string> = T extends { [K in BL]: infer F } ? F : never;
+
+  type AllOtherLangsSameFn<T, BL extends string> = OtherLangFunctions<T, BL>[keyof OtherLangFunctions<
+    T,
+    BL
+  >] extends never
+    ? {}
+    : OtherLangFunctions<T, BL>[keyof OtherLangFunctions<T, BL>] extends BaseLangFunction<T, BL>
+      ? {}
+      : never;
+
+  type AssertAllSameFn<T, BL extends string = BaseLang> = {
+    [K in keyof T]: T[K] extends { [P in BL]: infer Base }
+      ? Base extends (...args: any[]) => any
+        ? AllOtherLangsSameFn<T[K], BL>
+        : {}
+      : {};
+  }[keyof T];
+
+  // --- End AssertAllSameFn ---
 
   let currentLang: Lang = baseLanguage;
   const listeners = new Set<() => void>();
@@ -41,7 +71,7 @@ export const createTranslationsFactory = <Lang extends string, BaseLang extends 
       listener();
     }
   };
-  
+
   const subscribe = (fn: () => void) => {
     listeners.add(fn);
     return () => listeners.delete(fn);
@@ -58,7 +88,7 @@ export const createTranslationsFactory = <Lang extends string, BaseLang extends 
    * @param translations The translations object.
    * @returns An object with a `t` function to translate keys.
    */
-  const useTranslations = <T extends Translations>(translations: T) => {
+  const useTranslations = <T extends Translations & AssertAllSameFn<T, BaseLang>>(translations: T) => {
     const language = useLanguage();
 
     const t: ResolvedTranslations<T> = useMemo(() => {
@@ -90,6 +120,6 @@ export const createTranslationsFactory = <Lang extends string, BaseLang extends 
     getLanguage,
     setLanguage,
     useLanguage,
-    Translations: null as unknown as RequireBaseLanguage<Lang, BaseLang>,
+    Translations: null as unknown as Translations,
   };
 };
